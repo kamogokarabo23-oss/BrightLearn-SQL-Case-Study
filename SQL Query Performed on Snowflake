@@ -1,0 +1,55 @@
+--Bright Coffee Retail Sales Analysis
+-- This query analyzes sales performance by date, time, product, and store location.
+-- It includes time-of-day classification, weekday/weekend distinction, and revenue calculations.
+
+--Transaction date and day name
+SELECT
+    transaction_date,
+    DAYNAME(transaction_date) AS day_name,
+
+--Classify the day as either a Weekday or Weekend
+    CASE
+        WHEN DAYNAME(transaction_date) IN ('Sun', 'Sat') THEN 'Weekend'
+        ELSE 'Weekday'
+    END AS day_classification,
+
+-- Month name for seasonal analysis
+    MONTHNAME(transaction_date) AS month_name,
+
+--Operating date range
+
+    MIN(transaction_date) AS first_operating_date,
+    MAX(transaction_date) AS last_operating_date,
+   
+--Operating hours
+    MIN(transaction_time) AS opening_hour,
+    MAX(transaction_time) AS closing_hour,
+
+
+--Time-of-day classification using original logic
+    CASE
+        WHEN transaction_time BETWEEN '06:00:00' AND '11:59:59' THEN 'Morning'
+        WHEN transaction_time BETWEEN '12:00:00' AND '16:59:59' THEN 'Afternoon'
+        WHEN transaction_time >= '17:00:00' THEN 'Evening'
+    END AS time_classification,
+
+-- Extract hour for hourly trend analysis
+    HOUR(transaction_time) AS hour_of_day,
+
+--Categorical dimensions for segmentation
+    store_location,
+    product_category,
+    product_detail,
+    product_type,
+
+--Count of unique transactions (sales)
+    COUNT(DISTINCT transaction_id) AS number_of_sales,
+
+--Total revenue calculation
+    SUM(transaction_qty * unit_price) AS revenue
+
+-- Source table
+FROM BRIGHT_COFFEE_CASESTUDY.SALES.COFFEE_SHOP
+
+--Grouping by all relevant dimensions
+GROUP BY ALL;
